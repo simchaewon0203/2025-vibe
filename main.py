@@ -18,7 +18,7 @@ hobbies = [
 
 # 속도 조절 슬라이더
 speed = st.slider("룰렛 속도 설정", min_value=1, max_value=10, value=5)
-base_delay = 0.03 + (10 - speed) * 0.01  # 속도가 클수록 빠르게
+base_delay = 0.03 + (10 - speed) * 0.01
 
 # 룰렛 돌리기 버튼
 if st.button("룰렛 돌리기! 🎲"):
@@ -33,4 +33,23 @@ if st.button("룰렛 돌리기! 🎲"):
             )
             time.sleep(base_delay + i * 0.005)
 
-    st.success(f"✨ 오늘의 추천 취미는 **{choice}** 입니다!")
+    # 약간의 딜레이 후 최종 출력
+    time.sleep(0.3)
+
+    # 최종 선택 이펙트 출력
+    st.markdown(
+        f"""
+        <div style='
+            background-color:#ffe9b3;
+            padding:30px;
+            border-radius:15px;
+            text-align:center;
+            font-size:48px;
+            font-weight:bold;
+            color:#d35400;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);'>
+            🎉 오늘의 취미는<br>👉 <span style="color:#c0392b;">{choice}</span> 👈 입니다! 🎉
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
