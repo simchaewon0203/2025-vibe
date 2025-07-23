@@ -1,77 +1,83 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="진짜 원형 룰렛", layout="centered")
-st.title("🎯 진짜 원형 룰렛 - 취미 뽑기")
-
-st.markdown("룰렛을 클릭해 돌려보세요! 화살표가 가리키는 곳이 오늘의 취미입니다.")
+st.set_page_config(page_title="중앙화살표 원형 룰렛", layout="centered")
+st.title("🎯 취미 룰렛 돌리기")
 
 html_code = """
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=SUIT&display=swap');
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SUIT&display=swap');
 
-body {
-  font-family: 'SUIT', sans-serif;
-  text-align: center;
-  background-color: #f9f9f9;
-}
+    body {
+      font-family: 'SUIT', sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+    }
 
-canvas {
-  margin-top: 0;
-}
+    #canvas-container {
+      position: relative;
+      display: inline-block;
+      margin-top: 20px;
+    }
 
-#wheelWrapper {
-  position: relative;
-  display: inline-block;
-}
+    canvas {
+      border-radius: 50%;
+      background-color: #ffffff;
+    }
 
-#arrow {
-  position: absolute;
-  top: -70px; /* 위치 조절: 바깥으로 올라가게 */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
+    #center-arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      z-index: 10;
+    }
 
-#triangle {
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 25px solid red;
-  margin: 0 auto;
-}
+    #center-arrow::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid red;
+      display: block;
+      margin: 0 auto;
+    }
 
-#bar {
-  width: 4px;
-  height: 40px;
-  background-color: red;
-  margin: 0 auto;
-  border-radius: 2px;
-}
+    #result {
+      margin-top: 40px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+      transition: all 0.3s ease;
+    }
 
-#result {
-  margin-top: 30px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #2c3e50;
-}
-</style>
+    .highlight {
+      color: #e74c3c;
+      font-size: 36px;
+      animation: pop 0.6s ease-out;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
 
-<div id="wheelWrapper">
-  <div id="arrow">
-    <div id="triangle"></div>
-    <div id="bar"></div>
-  </div>
+<h3>룰렛을 클릭해보세요!</h3>
+<div id="canvas-container">
   <canvas id="wheelCanvas" width="400" height="400"></canvas>
+  <div id="center-arrow"></div>
 </div>
 
-<div id="result">👇 룰렛을 클릭하세요!</div>
+<div id="result">👇 룰렛을 클릭해서 시작!</div>
 
 <script>
 const hobbies = [
@@ -83,25 +89,25 @@ const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 const radius = canvas.width / 2;
 let startAngle = 0;
-let arc = Math.PI * 2 / hobbies.length;
+const arc = Math.PI * 2 / hobbies.length;
 let spinning = false;
 
 function drawWheel() {
   for (let i = 0; i < hobbies.length; i++) {
     const angle = startAngle + i * arc;
     ctx.beginPath();
-    ctx.fillStyle = i % 2 == 0 ? "#f39c12" : "#f1c40f";
+    ctx.fillStyle = i % 2 === 0 ? "#f39c12" : "#f1c40f";
     ctx.moveTo(radius, radius);
     ctx.arc(radius, radius, radius, angle, angle + arc, false);
     ctx.fill();
 
     ctx.save();
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#fff";
     ctx.translate(radius, radius);
     ctx.rotate(angle + arc / 2);
     ctx.textAlign = "right";
-    ctx.font = "bold 16px SUIT";
-    ctx.fillText(hobbies[i], radius - 10, 10);
+    ctx.font = "bold 15px SUIT";
+    ctx.fillText(hobbies[i], radius - 10, 5);
     ctx.restore();
   }
 }
@@ -109,37 +115,37 @@ function drawWheel() {
 function spinWheel() {
   if (spinning) return;
   spinning = true;
+  let spinAngle = Math.random() * 10 + 15; // 시작 속도
   let spinTime = 0;
-  let spinTimeTotal = 7000;  // 회전 시간
-  let spinAngleStart = Math.random() * 15 + 25;
+  const spinTimeTotal = 7000;
 
   function rotate() {
     spinTime += 30;
-    if (spinTime >= spinTimeTotal) {
-      stopRotateWheel();
-      return;
-    }
-    let spinAngleIncrement = easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-    startAngle += (spinAngleIncrement * Math.PI / 180);
+    const progress = spinTime / spinTimeTotal;
+    const ease = Math.pow(1 - progress, 3); // 부드럽게 감속
+    startAngle += (spinAngle * ease) * Math.PI / 180;
+
     drawRoulette();
-    requestAnimationFrame(rotate);
+
+    if (spinTime < spinTimeTotal) {
+      requestAnimationFrame(rotate);
+    } else {
+      stopWheel();
+    }
   }
 
   rotate();
 }
 
-function stopRotateWheel() {
-  let degrees = startAngle * 180 / Math.PI + 90;
-  let arcDeg = arc * 180 / Math.PI;
-  let index = Math.floor((360 - degrees % 360) / arcDeg) % hobbies.length;
-  document.getElementById("result").innerHTML = `🎉 오늘의 취미는 <span style="color:#e74c3c;">${hobbies[index]}</span> 입니다! 🎉`;
-  spinning = false;
-}
+function stopWheel() {
+  let degrees = (startAngle * 180 / Math.PI + 90) % 360;
+  const arcDegrees = arc * 180 / Math.PI;
+  const index = Math.floor((360 - degrees) / arcDegrees) % hobbies.length;
+  const selected = hobbies[index];
 
-function easeOut(t, b, c, d) {
-  let ts = (t /= d) * t;
-  let tc = ts * t;
-  return b + c * (tc + -3 * ts + 3 * t);
+  const result = document.getElementById("result");
+  result.innerHTML = `🎉 오늘의 취미는 <span class='highlight'>${selected}</span> 입니다! 🎉`;
+  spinning = false;
 }
 
 function drawRoulette() {
@@ -155,4 +161,4 @@ drawWheel();
 </html>
 """
 
-components.html(html_code, height=550)
+components.html(html_code, height=600)
