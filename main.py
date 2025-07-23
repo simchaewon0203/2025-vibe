@@ -20,7 +20,7 @@ body {
 }
 
 canvas {
-  margin-top: 50px;
+  margin-top: 0;
 }
 
 #wheelWrapper {
@@ -30,19 +30,19 @@ canvas {
 
 #arrow {
   position: absolute;
-  top: -45px;
+  top: -70px; /* 위치 조절: 바깥으로 올라가게 */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 10;
 }
 
 #triangle {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 30px solid red;
-  margin: auto;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 25px solid red;
+  margin: 0 auto;
 }
 
 #bar {
@@ -110,8 +110,8 @@ function spinWheel() {
   if (spinning) return;
   spinning = true;
   let spinTime = 0;
-  let spinTimeTotal = 7000;  // ⏱ 회전 시간 늘림
-  let spinAngleStart = Math.random() * 15 + 25;  // 초기 회전 각도도 증가
+  let spinTimeTotal = 7000;  // 회전 시간
+  let spinAngleStart = Math.random() * 15 + 25;
 
   function rotate() {
     spinTime += 30;
