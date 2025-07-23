@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="중앙 정렬 룰렛", layout="centered")
-st.title("🎯 진짜 원형 취미 룰렛")
+st.set_page_config(page_title="중앙 고정 화살표 룰렛", layout="centered")
+st.title("🎯 중앙에서 쏘는 화살표 룰렛")
 
-st.markdown("룰렛을 클릭하면 중앙 화살표가 오늘의 취미를 가리켜요!")
+st.markdown("룰렛을 클릭하면 중심 화살표가 가리키는 오늘의 취미가 결정됩니다!")
 
 html_code = """
 <!DOCTYPE html>
@@ -33,19 +33,20 @@ html_code = """
 
     #center-arrow {
       position: absolute;
-      top: -9px;  /* 더 정확한 가운데를 위해 조정 */
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%) rotate(0deg);
       z-index: 10;
+      pointer-events: none;
     }
 
-    #center-arrow::before {
+    #center-arrow::after {
       content: "";
       width: 0;
       height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 18px solid red;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 30px solid red;
       display: block;
       margin: 0 auto;
     }
@@ -55,7 +56,6 @@ html_code = """
       font-size: 28px;
       font-weight: bold;
       color: #2c3e50;
-      transition: all 0.3s ease;
     }
 
     .highlight {
@@ -73,7 +73,7 @@ html_code = """
 </head>
 <body>
 
-<h3>룰렛을 클릭해보세요!</h3>
+<h3>룰렛을 클릭하세요!</h3>
 <div id="canvas-container">
   <canvas id="wheelCanvas" width="400" height="400"></canvas>
   <div id="center-arrow"></div>
@@ -110,7 +110,7 @@ function drawWheel() {
     ctx.translate(radius, radius);
     ctx.rotate(angle + arc / 2);
     ctx.textAlign = "right";
-    ctx.font = "bold 13px SUIT";
+    ctx.font = "bold 12px SUIT";
     ctx.fillText(hobbies[i], radius - 10, 5);
     ctx.restore();
   }
@@ -142,7 +142,7 @@ function spinWheel() {
 }
 
 function stopWheel() {
-  let degrees = (startAngle * 180 / Math.PI + 90) % 360;
+  let degrees = (startAngle * 180 / Math.PI + 270) % 360;  // 위쪽이 기준이므로 +90 → +270
   const arcDegrees = arc * 180 / Math.PI;
   const index = Math.floor((360 - degrees) / arcDegrees) % hobbies.length;
   const selected = hobbies[index];
