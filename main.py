@@ -1,8 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="원형 룰렛", layout="centered")
-st.title("🎯 진짜 원형 룰렛으로 취미 뽑기")
+st.set_page_config(page_title="진짜 원형 룰렛", layout="centered")
+st.title("🎯 진짜 원형 룰렛 - 취미 뽑기")
 
 st.markdown("룰렛을 클릭해 돌려보세요! 화살표가 가리키는 곳이 오늘의 취미입니다.")
 
@@ -20,19 +20,37 @@ body {
 }
 
 canvas {
-  margin-top: 20px;
+  margin-top: 50px;
+}
+
+#wheelWrapper {
+  position: relative;
+  display: inline-block;
 }
 
 #arrow {
   position: absolute;
-  top: 95px;
+  top: -45px;
   left: 50%;
   transform: translateX(-50%);
-  width: 0; 
-  height: 0; 
+  z-index: 2;
+}
+
+#triangle {
+  width: 0;
+  height: 0;
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
   border-bottom: 30px solid red;
+  margin: auto;
+}
+
+#bar {
+  width: 4px;
+  height: 40px;
+  background-color: red;
+  margin: 0 auto;
+  border-radius: 2px;
 }
 
 #result {
@@ -45,8 +63,14 @@ canvas {
 </head>
 <body>
 
-<div id="arrow"></div>
-<canvas id="wheelCanvas" width="400" height="400"></canvas>
+<div id="wheelWrapper">
+  <div id="arrow">
+    <div id="triangle"></div>
+    <div id="bar"></div>
+  </div>
+  <canvas id="wheelCanvas" width="400" height="400"></canvas>
+</div>
+
 <div id="result">👇 룰렛을 클릭하세요!</div>
 
 <script>
@@ -60,7 +84,6 @@ const ctx = canvas.getContext("2d");
 const radius = canvas.width / 2;
 let startAngle = 0;
 let arc = Math.PI * 2 / hobbies.length;
-let spinAngle = 0;
 let spinning = false;
 
 function drawWheel() {
@@ -71,7 +94,7 @@ function drawWheel() {
     ctx.moveTo(radius, radius);
     ctx.arc(radius, radius, radius, angle, angle + arc, false);
     ctx.fill();
-    
+
     ctx.save();
     ctx.fillStyle = "white";
     ctx.translate(radius, radius);
@@ -87,8 +110,8 @@ function spinWheel() {
   if (spinning) return;
   spinning = true;
   let spinTime = 0;
-  let spinTimeTotal = 4000;
-  let spinAngleStart = Math.random() * 10 + 10;
+  let spinTimeTotal = 7000;  // ⏱ 회전 시간 늘림
+  let spinAngleStart = Math.random() * 15 + 25;  // 초기 회전 각도도 증가
 
   function rotate() {
     spinTime += 30;
@@ -114,9 +137,9 @@ function stopRotateWheel() {
 }
 
 function easeOut(t, b, c, d) {
-  let ts = (t/=d)*t;
-  let tc = ts*t;
-  return b+c*(tc + -3*ts + 3*t);
+  let ts = (t /= d) * t;
+  let tc = ts * t;
+  return b + c * (tc + -3 * ts + 3 * t);
 }
 
 function drawRoulette() {
@@ -132,4 +155,4 @@ drawWheel();
 </html>
 """
 
-components.html(html_code, height=500)
+components.html(html_code, height=550)
