@@ -1,8 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="중앙화살표 원형 룰렛", layout="centered")
-st.title("🎯 취미 룰렛 돌리기")
+st.set_page_config(page_title="빠른 원형 룰렛", layout="centered")
+st.title("🎯 오늘 뭐하지? 취미 룰렛")
+
+st.markdown("룰렛을 클릭해 돌려보세요! 중앙 화살표가 가리키는 취미가 오늘의 선택입니다.")
 
 html_code = """
 <!DOCTYPE html>
@@ -71,18 +73,20 @@ html_code = """
 </head>
 <body>
 
-<h3>룰렛을 클릭해보세요!</h3>
+<h3>룰렛을 클릭하세요!</h3>
 <div id="canvas-container">
   <canvas id="wheelCanvas" width="400" height="400"></canvas>
   <div id="center-arrow"></div>
 </div>
 
-<div id="result">👇 룰렛을 클릭해서 시작!</div>
+<div id="result">👇 돌려보세요!</div>
 
 <script>
 const hobbies = [
-  "책 읽기", "요리하기", "산책하기", "그림 그리기", "보드게임",
-  "자전거 타기", "영화 보기", "사진 찍기", "헬스장 가기", "뜨개질"
+  "책 읽기", "요리하기", "산책하기", "그림 그리기", "보드게임", "자전거 타기",
+  "영화 보기", "사진 찍기", "헬스장 가기", "뜨개질", "코딩 공부", "명상하기",
+  "플라워 클래스", "홈카페 만들기", "웹툰 그리기", "퍼즐 맞추기", "클라이밍",
+  "댄스 배우기", "마크라메", "캘리그래피", "도예 체험", "수영 배우기", "낚시하기"
 ];
 
 const canvas = document.getElementById("wheelCanvas");
@@ -106,7 +110,7 @@ function drawWheel() {
     ctx.translate(radius, radius);
     ctx.rotate(angle + arc / 2);
     ctx.textAlign = "right";
-    ctx.font = "bold 15px SUIT";
+    ctx.font = "bold 13px SUIT";
     ctx.fillText(hobbies[i], radius - 10, 5);
     ctx.restore();
   }
@@ -115,14 +119,14 @@ function drawWheel() {
 function spinWheel() {
   if (spinning) return;
   spinning = true;
-  let spinAngle = Math.random() * 10 + 15; // 시작 속도
+  let spinAngle = Math.random() * 20 + 30; // ⏩ 더 빠르게 시작
   let spinTime = 0;
-  const spinTimeTotal = 7000;
+  const spinTimeTotal = 5000; // ⏱ 감속 시간 약간 줄임
 
   function rotate() {
     spinTime += 30;
     const progress = spinTime / spinTimeTotal;
-    const ease = Math.pow(1 - progress, 3); // 부드럽게 감속
+    const ease = Math.pow(1 - progress, 3); // 자연 감속
     startAngle += (spinAngle * ease) * Math.PI / 180;
 
     drawRoulette();
