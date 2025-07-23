@@ -89,7 +89,7 @@ if st.button("🎰 룰렛 돌리기!"):
                     🎡 {selected['name']} <br/>💸 {selected['price']:,}원
                 </div>
             """, unsafe_allow_html=True)
-            time.sleep(0.9 + (i * 0.03))  # 점점 느려지는 효과
+            time.sleep(0.00000000000001 + (i * 0.03))  # 점점 느려지는 효과
 
         st.success(f"✨ 최종 선택: **{selected['name']}** ({selected['price']:,}원)")
 
