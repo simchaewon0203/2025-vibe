@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="중앙 고정 화살표 룰렛", layout="centered")
-st.title("🎯 중앙에서 쏘는 화살표 룰렛")
+st.title("🎯 원형 룰렛")
 
 st.markdown("룰렛을 클릭하면 중심 화살표가 가리키는 오늘의 취미가 결정됩니다!")
 
