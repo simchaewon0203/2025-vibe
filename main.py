@@ -33,7 +33,7 @@ html_code = """
 
     #center-arrow {
       position: absolute;
-      top: 25%;
+      top: 0%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(0deg);
       z-index: 10;
