@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="빠른 원형 룰렛", layout="centered")
-st.title("🎯 오늘 뭐하지? 취미 룰렛")
+st.set_page_config(page_title="중앙 정렬 룰렛", layout="centered")
+st.title("🎯 진짜 원형 취미 룰렛")
 
-st.markdown("룰렛을 클릭해 돌려보세요! 중앙 화살표가 가리키는 취미가 오늘의 선택입니다.")
+st.markdown("룰렛을 클릭하면 중앙 화살표가 오늘의 취미를 가리켜요!")
 
 html_code = """
 <!DOCTYPE html>
@@ -23,7 +23,7 @@ html_code = """
     #canvas-container {
       position: relative;
       display: inline-block;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     canvas {
@@ -33,9 +33,9 @@ html_code = """
 
     #center-arrow {
       position: absolute;
-      top: 50%;
+      top: -9px;  /* 더 정확한 가운데를 위해 조정 */
       left: 50%;
-      transform: translate(-50%, -100%);
+      transform: translateX(-50%);
       z-index: 10;
     }
 
@@ -43,9 +43,9 @@ html_code = """
       content: "";
       width: 0;
       height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 25px solid red;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 18px solid red;
       display: block;
       margin: 0 auto;
     }
@@ -73,7 +73,7 @@ html_code = """
 </head>
 <body>
 
-<h3>룰렛을 클릭하세요!</h3>
+<h3>룰렛을 클릭해보세요!</h3>
 <div id="canvas-container">
   <canvas id="wheelCanvas" width="400" height="400"></canvas>
   <div id="center-arrow"></div>
@@ -119,14 +119,14 @@ function drawWheel() {
 function spinWheel() {
   if (spinning) return;
   spinning = true;
-  let spinAngle = Math.random() * 20 + 30; // ⏩ 더 빠르게 시작
+  let spinAngle = Math.random() * 20 + 30;
   let spinTime = 0;
-  const spinTimeTotal = 5000; // ⏱ 감속 시간 약간 줄임
+  const spinTimeTotal = 5000;
 
   function rotate() {
     spinTime += 30;
     const progress = spinTime / spinTimeTotal;
-    const ease = Math.pow(1 - progress, 3); // 자연 감속
+    const ease = Math.pow(1 - progress, 3);
     startAngle += (spinAngle * ease) * Math.PI / 180;
 
     drawRoulette();
