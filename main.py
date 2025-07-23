@@ -4,7 +4,7 @@ import time
 
 st.set_page_config(page_title="룰렛 메뉴 추천", page_icon="🎡")
 
-st.title("🎡 오늘 저녁 뭐 먹지? 룰렛 돌리기!")
+st.title("🎡 배가 좀 고프구만")
 st.write("음식 종류를 선택한 후, 룰렛을 돌려 메뉴를 추천받으세요!")
 
 # 기본 메뉴 (카테고리별, 평균 가격 포함)
