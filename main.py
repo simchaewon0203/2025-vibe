@@ -1,13 +1,13 @@
 import streamlit as st
-import plotly.graph_objects as go
 import random
+import time
 
 st.set_page_config(page_title="룰렛 메뉴 추천", page_icon="🎡")
 
-st.title("🎡 진짜 룰렛으로 메뉴를 골라보자!")
-st.write("음식 종류를 선택한 뒤, 룰렛을 돌려 메뉴와 가격을 추천받으세요!")
+st.title("🎡 오늘 저녁 뭐 먹지? 룰렛 돌리기!")
+st.write("음식 종류를 선택한 후, 룰렛을 돌려 메뉴를 추천받으세요!")
 
-# 기본 메뉴
+# 기본 메뉴 (카테고리별, 평균 가격 포함)
 default_menus = {
     "한식": [
         {"name": "김치찌개", "price": 9000},
@@ -40,61 +40,57 @@ default_menus = {
     ]
 }
 
-# 상태 초기화
+# 세션 상태 초기화
 if "menus" not in st.session_state:
     st.session_state.menus = default_menus.copy()
 
 # 카테고리 선택
 category = st.radio("🍱 음식 종류 선택", list(st.session_state.menus.keys()))
 
-menu_list = st.session_state.menus[category]
+# 룰렛 시뮬레이션
+if st.button("🎰 룰렛 돌리기!"):
+    menu_list = st.session_state.menus[category]
 
-if menu_list:
-    labels = [f"{m['name']} ({m['price']:,}원)" for m in menu_list]
-    values = [1] * len(menu_list)
+    if not menu_list:
+        st.warning("해당 카테고리에 메뉴가 없습니다. 메뉴를 추가해주세요.")
+    else:
+        roulette_placeholder = st.empty()
+        spin_times = random.randint(12, 20)  # 룰렛 회전 횟수
 
-    fig = go.Figure(data=[go.Pie(
-        labels=labels,
-        values=values,
-        hole=0.2,
-        direction="clockwise",
-        sort=False,
-        textinfo='label',
-    )])
+        for i in range(spin_times):
+            selected = menu_list[i % len(menu_list)]
+            roulette_placeholder.markdown(f"""
+                <div style='text-align:center; font-size: 32px; padding: 20px; border: 3px dashed #f39c12; border-radius: 10px;'>
+                    🎡 {selected['name']} <br/>💸 {selected['price']:,}원
+                </div>
+            """, unsafe_allow_html=True)
+            time.sleep(0.1 + (i * 0.03))  # 점점 느려지는 효과
 
-    fig.update_layout(
-        title=f"🎯 {category} 룰렛 돌리기",
-        showlegend=False
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    if st.button("🎰 룰렛 돌리기!"):
-        selected = random.choice(menu_list)
-        st.success(f"✨ 오늘의 메뉴는 **{selected['name']}**!\n💸 평균 가격: **{selected['price']:,}원**")
-
-else:
-    st.warning("이 카테고리에 메뉴가 없습니다. 메뉴를 추가해주세요.")
+        st.success(f"✨ 최종 선택: **{selected['name']}** ({selected['price']:,}원)")
 
 # 메뉴 추가
 with st.expander("➕ 메뉴 추가하기"):
-    new_name = st.text_input("메뉴 이름", key="add_name")
-    new_price = st.number_input("평균 가격 (원)", min_value=0, max_value=100000, step=500, key="add_price")
+    new_menu_name = st.text_input("추가할 메뉴 이름", key="add_name")
+    new_menu_price = st.number_input("평균 가격 (원)", min_value=0, max_value=100000, step=500, key="add_price")
     if st.button("추가", key="add_btn"):
-        if new_name:
-            exists = any(m['name'] == new_name for m in menu_list)
+        if new_menu_name:
+            exists = any(menu['name'] == new_menu_name for menu in st.session_state.menus[category])
             if not exists:
-                st.session_state.menus[category].append({"name": new_name, "price": int(new_price)})
-                st.success(f"{category}에 '{new_name}'이 추가되었습니다!")
+                st.session_state.menus[category].append({
+                    "name": new_menu_name,
+                    "price": int(new_menu_price)
+                })
+                st.success(f"{category}에 '{new_menu_name}' 메뉴가 추가되었습니다!")
             else:
                 st.warning("이미 등록된 메뉴입니다.")
         else:
             st.error("메뉴 이름을 입력해주세요.")
 
-# 현재 메뉴 리스트
-with st.expander("📋 현재 메뉴 보기"):
-    if menu_list:
-        for m in menu_list:
-            st.write(f"• {m['name']} - {m['price']:,}원")
+# 현재 메뉴 보기
+with st.expander("📋 현재 메뉴 리스트 보기"):
+    current_list = st.session_state.menus[category]
+    if current_list:
+        for menu in current_list:
+            st.write(f"• {menu['name']} - {menu['price']:,}원")
     else:
-        st.write("등록된 메뉴가 없습니다.")
+        st.write("메뉴가 없습니다.")
