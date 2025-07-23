@@ -1,59 +1,38 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="룰렛 취미 뽑기", layout="centered")
-st.title("🎯 오늘 뭐하지?")
+st.set_page_config(page_title="원형 룰렛", layout="centered")
+st.title("🎯 진짜 원형 룰렛으로 취미 뽑기")
 
-st.markdown("클릭하면 룰렛이 돌아가고, 최종 결과가 아래에 표시됩니다!")
+st.markdown("룰렛을 클릭해 돌려보세요! 화살표가 가리키는 곳이 오늘의 취미입니다.")
 
 html_code = """
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Pretendard&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SUIT&display=swap');
 
 body {
-  font-family: 'Pretendard', sans-serif;
+  font-family: 'SUIT', sans-serif;
   text-align: center;
+  background-color: #f9f9f9;
 }
 
-#wheel {
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  border: 10px solid #f39c12;
-  margin: auto;
-  position: relative;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-#wheel .segment {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  top: 50%;
-  left: 50%;
-  transform-origin: 0% 0%;
-  text-align: left;
-  padding-left: 10px;
-  padding-top: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff;
+canvas {
+  margin-top: 20px;
 }
 
 #arrow {
-  width: 0;
-  height: 0;
+  position: absolute;
+  top: 95px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; 
+  height: 0; 
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
   border-bottom: 30px solid red;
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 #result {
@@ -67,51 +46,86 @@ body {
 <body>
 
 <div id="arrow"></div>
-<div id="wheel"></div>
-<div id="result">👇 룰렛을 클릭해보세요!</div>
+<canvas id="wheelCanvas" width="400" height="400"></canvas>
+<div id="result">👇 룰렛을 클릭하세요!</div>
 
 <script>
-let hobbies = [
+const hobbies = [
   "책 읽기", "요리하기", "산책하기", "그림 그리기", "보드게임",
   "자전거 타기", "영화 보기", "사진 찍기", "헬스장 가기", "뜨개질"
 ];
 
-const wheel = document.getElementById("wheel");
-const result = document.getElementById("result");
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+const radius = canvas.width / 2;
+let startAngle = 0;
+let arc = Math.PI * 2 / hobbies.length;
+let spinAngle = 0;
+let spinning = false;
 
-// 색상 팔레트
-const colors = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#f1c40f", "#2ecc71", "#34495e", "#fd79a8", "#00cec9"];
-
-// Create segments
-for (let i = 0; i < hobbies.length; i++) {
-  let seg = document.createElement("div");
-  seg.className = "segment";
-  seg.style.background = colors[i % colors.length];
-  seg.style.transform = "rotate(" + (i * 360 / hobbies.length) + "deg) skewY(-" + (90 - (360 / hobbies.length)) + "deg)";
-  seg.innerHTML = hobbies[i];
-  wheel.appendChild(seg);
+function drawWheel() {
+  for (let i = 0; i < hobbies.length; i++) {
+    const angle = startAngle + i * arc;
+    ctx.beginPath();
+    ctx.fillStyle = i % 2 == 0 ? "#f39c12" : "#f1c40f";
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, angle, angle + arc, false);
+    ctx.fill();
+    
+    ctx.save();
+    ctx.fillStyle = "white";
+    ctx.translate(radius, radius);
+    ctx.rotate(angle + arc / 2);
+    ctx.textAlign = "right";
+    ctx.font = "bold 16px SUIT";
+    ctx.fillText(hobbies[i], radius - 10, 10);
+    ctx.restore();
+  }
 }
-
-let rotating = false;
 
 function spinWheel() {
-  if (rotating) return;
-  rotating = true;
+  if (spinning) return;
+  spinning = true;
+  let spinTime = 0;
+  let spinTimeTotal = 4000;
+  let spinAngleStart = Math.random() * 10 + 10;
 
-  let spins = Math.floor(Math.random() * 5 + 5);  // 5~9회전
-  let sectorAngle = 360 / hobbies.length;
-  let randomSector = Math.floor(Math.random() * hobbies.length);
-  let targetDeg = 360 * spins + (360 - randomSector * sectorAngle - sectorAngle / 2);
+  function rotate() {
+    spinTime += 30;
+    if (spinTime >= spinTimeTotal) {
+      stopRotateWheel();
+      return;
+    }
+    let spinAngleIncrement = easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+    startAngle += (spinAngleIncrement * Math.PI / 180);
+    drawRoulette();
+    requestAnimationFrame(rotate);
+  }
 
-  wheel.style.transform = "rotate(" + targetDeg + "deg)";
-
-  setTimeout(() => {
-    result.innerHTML = `🎉 오늘의 추천 취미는 <span style='color:#e74c3c;'>${hobbies[randomSector]}</span> 입니다! 🎉`;
-    rotating = false;
-  }, 5200);
+  rotate();
 }
 
-document.addEventListener("click", spinWheel);
+function stopRotateWheel() {
+  let degrees = startAngle * 180 / Math.PI + 90;
+  let arcDeg = arc * 180 / Math.PI;
+  let index = Math.floor((360 - degrees % 360) / arcDeg) % hobbies.length;
+  document.getElementById("result").innerHTML = `🎉 오늘의 취미는 <span style="color:#e74c3c;">${hobbies[index]}</span> 입니다! 🎉`;
+  spinning = false;
+}
+
+function easeOut(t, b, c, d) {
+  let ts = (t/=d)*t;
+  let tc = ts*t;
+  return b+c*(tc + -3*ts + 3*t);
+}
+
+function drawRoulette() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawWheel();
+}
+
+canvas.addEventListener("click", spinWheel);
+drawWheel();
 </script>
 
 </body>
