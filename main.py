@@ -61,4 +61,4 @@ if st.button("룰렛 돌리기! 🎲"):
     # 이미지 출력
     image_url = hobby_images.get(choice)
     if image_url:
-        st.image(image_url, caption=f"{choice} 예시 이미지", use_column_width=True)
+        st.image(image_url, caption=f"{choice} 예시 이미지", use_container_width=True)
