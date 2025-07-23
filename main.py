@@ -1,55 +1,90 @@
 import streamlit as st
-import random
-import time
+import streamlit.components.v1 as components
 
-st.set_page_config(page_title="취미 룰렛", page_icon="🎯", layout="centered")
-st.title("🎯 오늘 뭐하지?")
+st.set_page_config(page_title="진짜 룰렛", layout="centered")
+st.title("🎯 취미 룰렛 - 진짜 회전판!")
 
-st.markdown("룰렛을 돌려서 오늘의 취미를 정해보세요!")
+st.markdown("버튼을 눌러 룰렛을 돌려보세요!")
 
-# 취미 리스트
-hobbies = [
-    "책 읽기", "요리하기", "산책하기", "그림 그리기", "보드게임",
-    "자전거 타기", "영화 보기", "사진 찍기", "헬스장 가기", "뜨개질",
-    "코딩 공부", "춤 추기", "음악 듣기", "악기 연주", "명상하기",
-    "캠핑 가기", "낚시하기", "조깅하기", "클라이밍", "도예 체험",
-    "플라워 클래스", "홈카페 만들기", "수영 배우기", "웹툰 그리기", "퍼즐 맞추기"
-]
+html_code = """
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#wheel {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 10px solid #f39c12;
+  position: relative;
+  margin: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
+}
 
-# 속도 조절 슬라이더
-speed = st.slider("룰렛 속도 설정", min_value=1, max_value=10, value=5)
-base_delay = 0.03 + (10 - speed) * 0.01
+#wheel .segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  background: #f1c40f;
+  text-align: left;
+  padding-left: 10px;
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
 
-# 룰렛 돌리기 버튼
-if st.button("룰렛 돌리기! 🎲"):
-    placeholder = st.empty()
+#arrow {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 30px solid red;
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+</style>
+</head>
+<body>
 
-    with st.spinner("룰렛을 돌리는 중..."):
-        for i in range(30):
-            choice = random.choice(hobbies)
-            placeholder.markdown(
-                f"<div style='text-align:center; font-size:36px;'>{choice}</div>",
-                unsafe_allow_html=True
-            )
-            time.sleep(base_delay + i * 0.005)
+<div id="arrow"></div>
+<div id="wheel">
+</div>
 
-    # 약간의 딜레이 후 최종 출력
-    time.sleep(0.3)
+<script>
+let hobbies = [
+  "책 읽기", "요리하기", "산책하기", "그림 그리기", "보드게임",
+  "자전거 타기", "영화 보기", "사진 찍기", "헬스장 가기", "뜨개질"
+];
 
-    # 최종 선택 이펙트 출력
-    st.markdown(
-        f"""
-        <div style='
-            background-color:#ffe9b3;
-            padding:30px;
-            border-radius:15px;
-            text-align:center;
-            font-size:48px;
-            font-weight:bold;
-            color:#d35400;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);'>
-            🎉 오늘의 취미는<br>👉 <span style="color:#c0392b;">{choice}</span> 👈 입니다! 🎉
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+const wheel = document.getElementById("wheel");
+
+// Create segments
+for (let i = 0; i < hobbies.length; i++) {
+  let seg = document.createElement("div");
+  seg.className = "segment";
+  seg.style.transform = "rotate(" + (i * 360 / hobbies.length) + "deg) skewY(-" + (90 - (360 / hobbies.length)) + "deg)";
+  seg.innerHTML = hobbies[i];
+  wheel.appendChild(seg);
+}
+
+// Spin function
+function spinWheel() {
+  let spins = Math.floor(Math.random() * 5 + 5);  // 5~9회전
+  let deg = spins * 360 + Math.floor(Math.random() * 360);  // random angle
+  wheel.style.transform = "rotate(" + deg + "deg)";
+}
+
+document.addEventListener("click", spinWheel);
+</script>
+
+</body>
+</html>
+"""
+
+components.html(html_code, height=400)
